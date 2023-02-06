@@ -2,4 +2,6 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="champignon_stalk">#F8DFDF</color>
+    <color name="champignon_hat">#DE9A7E</color>
 </resources>

@@ -7,30 +7,25 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="de.janaja.champtemp.ui.HomeFragment"
+        android:name="de.janaja.champtemp.ui.main_content.HomeFragment"
         android:label="HomeFragment"
-        tools:layout="@layout/fragment_home">
-
-        <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_home"/>
     <fragment
         android:id="@+id/SecondFragment"
-        android:name="de.janaja.champtemp.ui.SecondFragment"
+        android:name="de.janaja.champtemp.ui.main_content.DayFragment"
         android:label="SecondFragment"
-        tools:layout="@layout/fragment_second">
-
-        <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/homeFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_day"/>
     <fragment
         android:id="@+id/logInFragment"
         android:name="de.janaja.champtemp.ui.LogInFragment"
         android:label="LogInFragment" >
         <action
-            android:id="@+id/action_logInFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            android:id="@+id/action_logInFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="de.janaja.champtemp.ui.main_content.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" />
 </navigation>

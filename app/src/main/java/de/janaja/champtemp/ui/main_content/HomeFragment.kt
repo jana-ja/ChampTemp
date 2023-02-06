@@ -1,4 +1,4 @@
-package de.janaja.champtemp.ui
+package de.janaja.champtemp.ui.main_content
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -6,9 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import de.janaja.champtemp.R
 import de.janaja.champtemp.databinding.FragmentHomeBinding
+import de.janaja.champtemp.ui.TempHumiViewModel
 
 class HomeFragment : Fragment() {
 
@@ -19,7 +19,7 @@ class HomeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View{
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
@@ -33,13 +33,7 @@ class HomeFragment : Fragment() {
         viewModel.tempHumis.observe(viewLifecycleOwner){
             if(it.isNotEmpty()){
                 binding.tvDegreesNow.text = getString(R.string.degrees_now, it[0].temp)
-
             }
-        }
-
-        binding.btnLogout.setOnClickListener {
-            viewModel.logout()
-            findNavController().navigateUp()
         }
     }
 

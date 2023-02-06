@@ -4,4 +4,7 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="degrees_now">%1$d °C</string>
+    <string name="now">Aktuell:</string>
+    <string name="logout">logout</string>
+    <string name="app_logo_description">app logo</string>
 </resources>

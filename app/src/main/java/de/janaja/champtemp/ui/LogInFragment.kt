@@ -33,7 +33,7 @@ class LogInFragment : Fragment() {
         binding.authBtnSignin.setOnClickListener { if(checkInput()) viewModel.signIn(binding.authInputEmail.text.toString(), binding.authInputPw.text.toString()) }
         viewModel.currentUser.observe(viewLifecycleOwner){
             if(it != null)
-                findNavController().navigate(R.id.action_logInFragment_to_homeFragment)
+                findNavController().navigate(R.id.action_logInFragment_to_mainFragment)
         }
     }
 
