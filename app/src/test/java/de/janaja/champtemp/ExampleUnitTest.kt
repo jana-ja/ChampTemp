@@ -1,4 +1,4 @@
-package com.example.champtemp
+package de.janaja.champtemp
 
 import org.junit.Test
 

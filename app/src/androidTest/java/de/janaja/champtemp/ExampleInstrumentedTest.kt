@@ -1,4 +1,4 @@
-package com.example.champtemp
+package de.janaja.champtemp
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
