@@ -9,6 +9,9 @@ import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 class Repository {
 
@@ -19,6 +22,8 @@ class Repository {
     val tempHumis: LiveData<List<TempHumi>>
         get() = _tempHumis
 
+    fun Timestamp.toLocalDateTime(zone: ZoneId = ZoneId.systemDefault()): LocalDateTime = LocalDateTime.ofInstant(
+        Instant.ofEpochMilli(seconds * 1000 + nanoseconds / 1000000), zone)
 
     fun loadTempHumiData() {
 
@@ -35,7 +40,7 @@ class Repository {
                         document.id,
                         document.data["temp"].toString().toInt(),
                         document.data["humi"].toString().toInt(),
-                        (document.data["myTimestamp"] as Timestamp).toDate()
+                        (document.data["myTimestamp"] as Timestamp).toLocalDateTime()
                     )
                     list.add(tempHumi)
                     Log.d(TAG, "${document.id} => ${document.data}")
