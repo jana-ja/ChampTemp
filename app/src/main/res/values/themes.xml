@@ -3,7 +3,9 @@
     <style name="Base.Theme.ChampTemp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:fontFamily">@font/autour_one</item>
+        <item name="android:textColor">@color/champignon_5</item>
     </style>
 
-    <style name="Theme.ChampTemp" parent="Base.Theme.ChampTemp" />
+    <style name="Theme.ChampTemp" parent="Base.Theme.ChampTemp"/>
 </resources>
