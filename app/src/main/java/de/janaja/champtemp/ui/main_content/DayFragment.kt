@@ -1,6 +1,5 @@
 package de.janaja.champtemp.ui.main_content
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,12 +17,12 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.utils.EntryXComparator
 import de.janaja.champtemp.R
+import de.janaja.champtemp.data.model.TempHumi
 import de.janaja.champtemp.databinding.FragmentDayBinding
 import de.janaja.champtemp.ui.TempHumiViewModel
-import java.lang.Math.random
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.random.Random
+import kotlin.collections.HashMap
 
 
 class DayFragment : Fragment() {
@@ -46,7 +45,7 @@ class DayFragment : Fragment() {
         viewModel.tempHumis.observe(viewLifecycleOwner){
             if(it.isNotEmpty()) {
 
-                val chart = binding.chart
+                val chart = binding.chartDay
                 chart.description = Description()
 
                 // entries
@@ -55,8 +54,11 @@ class DayFragment : Fragment() {
                 var tempHumiList = it
                 if(tempHumiList.size > 24)
                     tempHumiList = tempHumiList.subList(0,24)
-                tempHumiList.forEach { tempHumi ->
-                    val time = tempHumi.timestamp.hour.toFloat()
+                // MPAndroid Chart needs the entries to be sorted by X axis.
+                // X axis are the hours. i dont want to have axis from 0 - 23 everytime. so i will map the values of the last 24 to different hours, so that they are "sorted"
+                val backTransformMap = getHourBackTransformMap(tempHumiList)
+                tempHumiList.forEachIndexed { index, tempHumi ->
+                    val time = (tempHumiList.lastIndex - index).toFloat() // tempHumi.timestamp.hour.toFloat()
                     tempEntries.add(Entry(time, tempHumi.temp.toFloat()))
                     humiEntries.add(Entry(time, tempHumi.humi.toFloat()))
                 }
@@ -64,7 +66,7 @@ class DayFragment : Fragment() {
                 Collections.sort(humiEntries, EntryXComparator())
 
                 // data sets
-                val tempDataSet = LineDataSet(tempEntries, "Temperature")
+                val tempDataSet = LineDataSet(tempEntries, "Temperatur")
                 tempDataSet.axisDependency = YAxis.AxisDependency.LEFT
                 val tempColor = resources.getColor(R.color.champignon_5)
                 tempDataSet.color = tempColor
@@ -86,7 +88,7 @@ class DayFragment : Fragment() {
                 //val days = arrayOf("Son", "Mon", "Din", "Mit", "Don", "Fre", "Sam")
                 val formatter: ValueFormatter = object : ValueFormatter() {
                     override fun getAxisLabel(value: Float, axis: AxisBase): String {
-                        return "${value.toInt()} Uhr"
+                        return "${if(backTransformMap.containsKey(value.toInt())) backTransformMap[value.toInt()] else -1} Uhr"
                     }
                 }
                 val xAxis: XAxis = chart.xAxis
@@ -99,12 +101,6 @@ class DayFragment : Fragment() {
                 chart.invalidate()
             }
         }
-
-
-
-
-
-
     }
 
     override fun onDestroyView() {
@@ -112,5 +108,16 @@ class DayFragment : Fragment() {
         _binding = null
     }
 
-
+    private fun getHourBackTransformMap(tempHumiList: List<TempHumi>): Map<Int, Int> {
+        val hourBackMap = HashMap<Int,Int>()
+        // X axis are the hours. so i will map the values of the last 24 to different hours, so that they are "sorted"
+        // f.e. its 14 so i want to show data from yesterday 15 until now 14
+        // 15 -> 0, 16 -> 1...
+        // oldest hour needs to be 0
+        // newest hour needs to be 23 (or max index)
+        for (i in tempHumiList.indices){
+            hourBackMap[tempHumiList.lastIndex - i] = tempHumiList[i].timestamp.hour
+        }
+        return hourBackMap
+    }
 }
