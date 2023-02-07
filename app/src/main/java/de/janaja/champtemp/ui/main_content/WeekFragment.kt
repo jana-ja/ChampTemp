@@ -1,5 +1,7 @@
 package de.janaja.champtemp.ui.main_content
 
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -100,26 +102,6 @@ class WeekFragment : Fragment() {
                 Collections.sort(tempEntries, EntryXComparator())
                 Collections.sort(humiEntries, EntryXComparator())
 
-                // data sets
-                val tempDataSet = LineDataSet(tempEntries, "Temperature")
-                tempDataSet.axisDependency = YAxis.AxisDependency.LEFT
-                val tempColor = resources.getColor(R.color.champignon_5)
-                tempDataSet.color = tempColor
-                tempDataSet.valueTextColor = tempColor
-                tempDataSet.setCircleColor(tempColor)
-                val humiDataSet = LineDataSet(humiEntries, "Humidity")
-                humiDataSet.axisDependency = YAxis.AxisDependency.RIGHT
-                val humiColor = resources.getColor(R.color.champignon_4)
-                humiDataSet.color = humiColor
-                humiDataSet.valueTextColor = humiColor
-                humiDataSet.setCircleColor(humiColor)
-
-                // combine datasets
-                val dataSets: MutableList<ILineDataSet> = ArrayList()
-                dataSets.add(tempDataSet)
-                dataSets.add(humiDataSet)
-
-
                 // x axis description
                 val days = arrayOf("Son", "Mon", "Din", "Mit", "Don", "Fre", "Sam")
                 val formatter: ValueFormatter = object : ValueFormatter() {
@@ -137,6 +119,37 @@ class WeekFragment : Fragment() {
                 val humiYAxis: YAxis = chart.axisRight
                 humiYAxis.axisMaximum = 55f
                 humiYAxis.axisMinimum = 40f
+
+                // define colors
+                // light mode
+                var tempColor = resources.getColor(R.color.champignon_5)
+                val humiColor = resources.getColor(R.color.champignon_4)
+                // dark mode
+                val nightModeFlags = requireContext().resources.configuration.uiMode and
+                        Configuration.UI_MODE_NIGHT_MASK
+                if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+                    tempColor = resources.getColor(R.color.champignon_stalk)
+                    xAxis.textColor = Color.WHITE
+                    tempYAxis.textColor = Color.WHITE
+                    humiYAxis.textColor = Color.WHITE
+                }
+
+                // data sets
+                val tempDataSet = LineDataSet(tempEntries, "Temperature")
+                tempDataSet.axisDependency = YAxis.AxisDependency.LEFT
+                tempDataSet.color = tempColor
+                tempDataSet.valueTextColor = tempColor
+                tempDataSet.setCircleColor(tempColor)
+                val humiDataSet = LineDataSet(humiEntries, "Humidity")
+                humiDataSet.axisDependency = YAxis.AxisDependency.RIGHT
+                humiDataSet.color = humiColor
+                humiDataSet.valueTextColor = humiColor
+                humiDataSet.setCircleColor(humiColor)
+
+                // combine datasets
+                val dataSets: MutableList<ILineDataSet> = ArrayList()
+                dataSets.add(tempDataSet)
+                dataSets.add(humiDataSet)
 
                 // line data
                 val lineData = LineData(dataSets)

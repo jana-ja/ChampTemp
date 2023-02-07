@@ -1,5 +1,7 @@
 package de.janaja.champtemp.ui.main_content
 
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,8 +22,6 @@ import de.janaja.champtemp.data.model.TempHumi
 import de.janaja.champtemp.databinding.FragmentDayBinding
 import de.janaja.champtemp.ui.TempHumiViewModel
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 
 class DayFragment : Fragment() {
@@ -33,7 +33,7 @@ class DayFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View{
+    ): View {
         _binding = FragmentDayBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -41,53 +41,36 @@ class DayFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.tempHumis.observe(viewLifecycleOwner){
-            if(it.isNotEmpty()) {
+        viewModel.tempHumis.observe(viewLifecycleOwner) {
+            if (it.isNotEmpty()) {
 
                 val chart = binding.chartDay
                 chart.description.text = "last 24 hours"
+
 
                 // entries
                 val tempEntries = mutableListOf<Entry>()
                 val humiEntries = mutableListOf<Entry>()
                 var tempHumiList = it
-                if(tempHumiList.size > 24)
-                    tempHumiList = tempHumiList.subList(0,24)
+                if (tempHumiList.size > 24)
+                    tempHumiList = tempHumiList.subList(0, 24)
                 // MPAndroid Chart needs the entries to be sorted by X axis.
                 // X axis are the hours. i dont want to have axis from 0 - 23 everytime. so i will map the values of the last 24 to different hours, so that they are "sorted"
                 val backTransformMap = getHourBackTransformMap(tempHumiList)
                 tempHumiList.forEachIndexed { index, tempHumi ->
-                    val time = (tempHumiList.lastIndex - index).toFloat() // tempHumi.timestamp.hour.toFloat()
+                    val time =
+                        (tempHumiList.lastIndex - index).toFloat() // tempHumi.timestamp.hour.toFloat()
                     tempEntries.add(Entry(time, tempHumi.temp.toFloat()))
                     humiEntries.add(Entry(time, tempHumi.humi.toFloat()))
                 }
                 Collections.sort(tempEntries, EntryXComparator())
                 Collections.sort(humiEntries, EntryXComparator())
 
-                // data sets
-                val tempDataSet = LineDataSet(tempEntries, "Temperature")
-                tempDataSet.axisDependency = YAxis.AxisDependency.LEFT
-                val tempColor = resources.getColor(R.color.champignon_5)
-                tempDataSet.color = tempColor
-                tempDataSet.valueTextColor = tempColor
-                tempDataSet.setCircleColor(tempColor)
-                val humiDataSet = LineDataSet(humiEntries, "Humidity")
-                humiDataSet.axisDependency = YAxis.AxisDependency.RIGHT
-                val humiColor = resources.getColor(R.color.champignon_4)
-                humiDataSet.color = humiColor
-                humiDataSet.valueTextColor = humiColor
-                humiDataSet.setCircleColor(humiColor)
-
-                // combine datasets
-                val dataSets: MutableList<ILineDataSet> = ArrayList()
-                dataSets.add(tempDataSet)
-                dataSets.add(humiDataSet)
-
                 // x axis description
                 //val days = arrayOf("Son", "Mon", "Din", "Mit", "Don", "Fre", "Sam")
                 val formatter: ValueFormatter = object : ValueFormatter() {
                     override fun getAxisLabel(value: Float, axis: AxisBase): String {
-                        return "${if(backTransformMap.containsKey(value.toInt())) backTransformMap[value.toInt()] else -1} Uhr"
+                        return "${if (backTransformMap.containsKey(value.toInt())) backTransformMap[value.toInt()] else -1} Uhr"
                     }
                 }
                 val xAxis: XAxis = chart.xAxis
@@ -98,6 +81,37 @@ class DayFragment : Fragment() {
                 val humiYAxis: YAxis = chart.axisRight
                 humiYAxis.axisMaximum = 55f
                 humiYAxis.axisMinimum = 40f
+
+                // define colors
+                // light mode
+                var tempColor = resources.getColor(R.color.champignon_5)
+                val humiColor = resources.getColor(R.color.champignon_4)
+                // dark mode
+                val nightModeFlags = requireContext().resources.configuration.uiMode and
+                        Configuration.UI_MODE_NIGHT_MASK
+                if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+                    tempColor = resources.getColor(R.color.champignon_stalk)
+                    xAxis.textColor = Color.WHITE
+                    tempYAxis.textColor = Color.WHITE
+                    humiYAxis.textColor = Color.WHITE
+                }
+
+                // data sets
+                val tempDataSet = LineDataSet(tempEntries, "Temperature")
+                tempDataSet.axisDependency = YAxis.AxisDependency.LEFT
+                tempDataSet.color = tempColor
+                tempDataSet.valueTextColor = tempColor
+                tempDataSet.setCircleColor(tempColor)
+                val humiDataSet = LineDataSet(humiEntries, "Humidity")
+                humiDataSet.axisDependency = YAxis.AxisDependency.RIGHT
+                humiDataSet.color = humiColor
+                humiDataSet.valueTextColor = humiColor
+                humiDataSet.setCircleColor(humiColor)
+
+                // combine datasets
+                val dataSets: MutableList<ILineDataSet> = ArrayList()
+                dataSets.add(tempDataSet)
+                dataSets.add(humiDataSet)
 
                 // line data
                 val lineData = LineData(dataSets)
@@ -113,13 +127,13 @@ class DayFragment : Fragment() {
     }
 
     private fun getHourBackTransformMap(tempHumiList: List<TempHumi>): Map<Int, Int> {
-        val hourBackMap = HashMap<Int,Int>()
+        val hourBackMap = HashMap<Int, Int>()
         // X axis are the hours. so i will map the values of the last 24 to different hours, so that they are "sorted"
         // f.e. its 14 so i want to show data from yesterday 15 until now 14
         // 15 -> 0, 16 -> 1...
         // oldest hour needs to be 0
         // newest hour needs to be 23 (or max index)
-        for (i in tempHumiList.indices){
+        for (i in tempHumiList.indices) {
             hourBackMap[tempHumiList.lastIndex - i] = tempHumiList[i].timestamp.hour
         }
         return hourBackMap
