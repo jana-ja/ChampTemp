@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">ChampTemp</string>
     <string name="degrees_now">%1$d °C</string>
+    <string name="humi_now">%1$d %%</string>
     <string name="now">Aktuell:</string>
     <string name="logout">logout</string>
     <string name="app_logo_description">app logo</string>

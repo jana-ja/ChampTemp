@@ -33,6 +33,7 @@ class HomeFragment : Fragment() {
         viewModel.tempHumis.observe(viewLifecycleOwner){
             if(it.isNotEmpty()){
                 binding.tvDegreesNow.text = getString(R.string.degrees_now, it[0].temp)
+                binding.tvHumiNow.text = getString(R.string.humi_now, it[0].humi)
             }
         }
     }
