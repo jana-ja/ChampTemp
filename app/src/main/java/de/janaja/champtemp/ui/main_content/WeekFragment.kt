@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import com.github.mikephil.charting.components.AxisBase
-import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
@@ -44,7 +43,7 @@ class WeekFragment : Fragment() {
             if(it.isNotEmpty()) {
 
                 val chart = binding.chartWeek
-                chart.description = Description()
+                chart.description.text = "last 7 days"
 
                 // entries
                 val tempEntries = mutableListOf<Entry>()
@@ -102,7 +101,7 @@ class WeekFragment : Fragment() {
                 Collections.sort(humiEntries, EntryXComparator())
 
                 // data sets
-                val tempDataSet = LineDataSet(tempEntries, "Temperatur")
+                val tempDataSet = LineDataSet(tempEntries, "Temperature")
                 tempDataSet.axisDependency = YAxis.AxisDependency.LEFT
                 val tempColor = resources.getColor(R.color.champignon_5)
                 tempDataSet.color = tempColor
@@ -133,11 +132,11 @@ class WeekFragment : Fragment() {
                 xAxis.axisMaximum = 6f
                 xAxis.axisMinimum = 0f
                 val tempYAxis: YAxis = chart.axisLeft
-//                tempYAxis.axisMaximum = 23f
-//                tempYAxis.axisMinimum = 12f
+                tempYAxis.axisMaximum = 20f
+                tempYAxis.axisMinimum = 10f
                 val humiYAxis: YAxis = chart.axisRight
-//                humiYAxis.axisMaximum = 55f
-//                humiYAxis.axisMinimum = 45f
+                humiYAxis.axisMaximum = 55f
+                humiYAxis.axisMinimum = 40f
 
                 // line data
                 val lineData = LineData(dataSets)

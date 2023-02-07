@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.github.mikephil.charting.components.AxisBase
-import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
@@ -46,7 +45,7 @@ class DayFragment : Fragment() {
             if(it.isNotEmpty()) {
 
                 val chart = binding.chartDay
-                chart.description = Description()
+                chart.description.text = "last 24 hours"
 
                 // entries
                 val tempEntries = mutableListOf<Entry>()
@@ -66,7 +65,7 @@ class DayFragment : Fragment() {
                 Collections.sort(humiEntries, EntryXComparator())
 
                 // data sets
-                val tempDataSet = LineDataSet(tempEntries, "Temperatur")
+                val tempDataSet = LineDataSet(tempEntries, "Temperature")
                 tempDataSet.axisDependency = YAxis.AxisDependency.LEFT
                 val tempColor = resources.getColor(R.color.champignon_5)
                 tempDataSet.color = tempColor
@@ -92,8 +91,13 @@ class DayFragment : Fragment() {
                     }
                 }
                 val xAxis: XAxis = chart.xAxis
-                //xAxis.granularity = 1f // minimum axis-step (interval) is 1
                 xAxis.valueFormatter = formatter
+                val tempYAxis: YAxis = chart.axisLeft
+                tempYAxis.axisMaximum = 20f
+                tempYAxis.axisMinimum = 10f
+                val humiYAxis: YAxis = chart.axisRight
+                humiYAxis.axisMaximum = 55f
+                humiYAxis.axisMinimum = 40f
 
                 // line data
                 val lineData = LineData(dataSets)
