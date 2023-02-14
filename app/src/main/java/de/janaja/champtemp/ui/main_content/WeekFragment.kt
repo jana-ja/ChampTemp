@@ -3,6 +3,7 @@ package de.janaja.champtemp.ui.main_content
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -41,8 +42,8 @@ class WeekFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.tempHumis.observe(viewLifecycleOwner){
-            if(it.isNotEmpty()) {
+        viewModel.tempHumis.observe(viewLifecycleOwner){tempHumiList ->
+            if(tempHumiList.isNotEmpty()) {
 
                 val chart = binding.chartWeek
                 chart.description.text = "last 7 days"
@@ -50,31 +51,33 @@ class WeekFragment : Fragment() {
                 // entries
                 val tempEntries = mutableListOf<Entry>()
                 val humiEntries = mutableListOf<Entry>()
-                var tempHumiList = it
-                if(tempHumiList.size > 24*6)
-                    tempHumiList = tempHumiList.subList(0,24*6)
                 // MPAndroid Chart needs the entries to be sorted by X axis.
-                // X axis are the hours. i dont want to have axis from 0 - 23 everytime. so i will map the values of the last 24 to different hours, so that they are "sorted"
+                // X axis values are the days: mon -> 1, sun -> 7 (from java.time)
+                // axis should not go from 1-7 everytime, but from oldest to newest day. map the values of the last 7 days to different values, so that they are "sorted"
+                // (newest day (f.e. tue 2) -> 7, oldest day (f.e. wed 3) -> 1)
 
-                val dayBackMap = HashMap<Int,Int>()
+                val dayBackMap = HashMap<Int,Int>() // sorted day value -> actual day value
                 var nextAvg = false
+                // init first avg value
                 var day: Int = tempHumiList[0].timestamp.dayOfWeek.value
+                Log.e("Week", "day:  ${tempHumiList[0].timestamp.dayOfWeek} $day")
                 var currentAvgTemp = tempHumiList[0].temp
                 var currentAvgHumi = tempHumiList[0].humi
                 var avgCounter = 0
                 var i = 0
-                var xLabel = (tempHumiList.size / 24) + 1 - i //bei 1 tag -> 0, 2 tage -> 1 usw
+                var xLabel = 7
                 dayBackMap[xLabel] = day
-                tempHumiList.subList(1, tempHumiList.size).forEach { tempHumi ->
+                for (tempHumi in tempHumiList.subList(1, tempHumiList.size)) {
                     if(nextAvg){
                         // begin of new avg
                         nextAvg = false
                         day = tempHumi.timestamp.dayOfWeek.value
+                        Log.e("Week", "day: ${tempHumi.timestamp.dayOfWeek} $day")
                         currentAvgTemp = tempHumi.temp
                         currentAvgHumi = tempHumi.humi
                         avgCounter = 0
                         i++ // 0, 1, 2, 3, 4, 5, 6
-                        xLabel = (tempHumiList.size / 24) + 1 - i // 6, 5, 4, 3, 2, 1, 0 - 7 tage
+                        xLabel = 7 - i // 7, 6, 5, 4, 3, 2, 1
                         dayBackMap[xLabel] = day
                     }
                     if(tempHumi.timestamp.dayOfWeek.value == day){
@@ -88,31 +91,28 @@ class WeekFragment : Fragment() {
                         val avgHumi = currentAvgHumi.toFloat() / avgCounter
                         tempEntries.add(Entry(xLabel.toFloat(), avgTemp))
                         humiEntries.add(Entry(xLabel.toFloat(), avgHumi))
-                        nextAvg = true
 
+                        if(tempEntries.size >= 7)
+                            break
+
+                        nextAvg = true
                     }
-                }
-                if(!nextAvg){
-                    // add last avg element
-                    val avgTemp = currentAvgTemp.toFloat() / avgCounter
-                    val avgHumi = currentAvgHumi.toFloat() / avgCounter
-                    tempEntries.add(Entry(xLabel.toFloat(), avgTemp))
-                    humiEntries.add(Entry(xLabel.toFloat(), avgHumi))
                 }
                 Collections.sort(tempEntries, EntryXComparator())
                 Collections.sort(humiEntries, EntryXComparator())
 
-                // x axis description
-                val days = arrayOf("Son", "Mon", "Din", "Mit", "Don", "Fre", "Sam")
+                // x axis description: mon -> 1, son -> 7 (time.java)
+                val days = arrayOf("Son", "Mon", "Din", "Mit", "Don", "Fre", "Sam", "Son")
                 val formatter: ValueFormatter = object : ValueFormatter() {
                     override fun getAxisLabel(value: Float, axis: AxisBase): String {
+                        Log.e("Week", value.toString())
                         return if(dayBackMap.containsKey(value.toInt())) /*DayOfWeek.of(*/days[dayBackMap[value.toInt()]!!]/*)*/ else days[value.toInt()]
                     }
                 }
                 val xAxis: XAxis = chart.xAxis
                 xAxis.valueFormatter = formatter
-                xAxis.axisMaximum = 6f
-                xAxis.axisMinimum = 0f
+                xAxis.axisMaximum = 7f
+                xAxis.axisMinimum = 1f
                 val tempYAxis: YAxis = chart.axisLeft
                 tempYAxis.axisMaximum = 20f
                 tempYAxis.axisMinimum = 10f

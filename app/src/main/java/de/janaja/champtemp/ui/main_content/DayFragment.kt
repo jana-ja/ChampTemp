@@ -67,7 +67,6 @@ class DayFragment : Fragment() {
                 Collections.sort(humiEntries, EntryXComparator())
 
                 // x axis description
-                //val days = arrayOf("Son", "Mon", "Din", "Mit", "Don", "Fre", "Sam")
                 val formatter: ValueFormatter = object : ValueFormatter() {
                     override fun getAxisLabel(value: Float, axis: AxisBase): String {
                         return "${if (backTransformMap.containsKey(value.toInt())) backTransformMap[value.toInt()] else -1} Uhr"

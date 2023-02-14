@@ -43,7 +43,7 @@ class Repository {
                         (document.data["myTimestamp"] as Timestamp).toLocalDateTime()
                     )
                     list.add(tempHumi)
-                    Log.d(TAG, "${document.id} => ${document.data}")
+//                    Log.d(TAG, "${document.id} => ${document.data}")
                 }
 
                 val source = if (querySnapshot.metadata.isFromCache)
